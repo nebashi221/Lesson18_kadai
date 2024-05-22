@@ -20,7 +20,7 @@
 
   <div class="form-group">
 
-    {!! Form::input('text', 'contents', null, ['required', 'class' => 'form-control', 'placeholder' => '投稿内容']) !!}
+    {!! Form::input('text', 'contents', null, ['required', 'class' => 'form-control', 'placeholder' => '投稿内容','pattern'=>'^[\S\s]*\S[\S\s]*$','title'=>'全角スペースのみは投稿できません。']) !!}
 
   </div>
 
@@ -29,6 +29,22 @@
 {!! Form::close() !!}
 
 </div>
+
+@if($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 
  @endsection
 

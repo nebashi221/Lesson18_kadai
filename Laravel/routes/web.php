@@ -30,6 +30,10 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/', function () {
+  return view('welcome');
+});
+
 Route::get('/index', [PostsController::class, 'index']);
 
 Route::get('/create-form', [PostsController::class, 'createForm']);

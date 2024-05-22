@@ -6,13 +6,21 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
+
 class PostsController extends Controller
 {
     //
     public function index()
     {
         $list = DB::table('posts')->get();
-        return view('posts.index', ['lists' => $list]);
+        $userName = Auth::check() ? Auth::user()->name : null;
+
+        foreach ($list as $post) {
+            $post->editable = $userName == $post->user_name;
+        }
+
+        return view('posts.index', ['lists' => $list, 'username' => $userName, 'editable' => $post->editable ?? false]);
     }
 
     public function createForm()
@@ -24,8 +32,18 @@ class PostsController extends Controller
 
     {
 
+        $request->validate(['contents' => 'required', 'string', 'max:100', 'regex:/[^\s　]/']);
+
         $userName = $request->user()->name;
         $contents = $request->input('contents');
+
+        if (mb_strlen($contents) > 100) {
+            return redirect()->back()->with('error', '投稿内容100文字以内で入力してください。');
+        }
+
+        if (preg_match('/^　+$/u', $contents)) {
+            return redirect()->back()->with('error', '投稿内容を入力してください。');
+        }
 
         DB::table('posts')->insert([
             'user_name' => $userName,
@@ -51,13 +69,13 @@ class PostsController extends Controller
     public function update(Request $request)
 
     {
-        $request->validate(['contents' => 'required|regex:/[^\s]/|max:100']); //投稿内容が空欄またはスペースのみ、１００文字以上だとエラーが出る
+        $request->validate(['contents' => 'required|regex:/[^\s　]/|max:100']); //投稿内容が空欄またはスペースのみ、１００文字以上だとエラーが出る
 
         $id = $request->input('id');
 
         $contents = $request->input('contents');
 
-        if (empty(trim($contents))) {
+        if (mb_strlen(trim($contents)) === 0) {
             return redirect()->back()->with('error', '投稿内容を入力してください。');
         }
 
@@ -98,7 +116,7 @@ class PostsController extends Controller
         if ($keyword) {
             $lists = DB::table('posts')->where('contents', 'like', '%' . $keyword . '%')->get();
         } else {
-            $lists = [];
+            $lists = DB::table('posts')->get();
         }
 
         return view('posts.index', ['lists' => $lists]);

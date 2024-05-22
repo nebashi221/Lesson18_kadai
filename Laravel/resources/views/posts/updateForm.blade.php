@@ -27,7 +27,7 @@
 
       {!! Form::hidden('id', $post->id) !!}
 
-      {!! Form::input('text', 'contents', $post->contents, ['required', 'class' => 'form-control','placehoder'=>'投稿内容']) !!}
+      {!! Form::input('text', 'contents', $post->contents, ['required', 'class' => 'form-control','placehoder'=>'投稿内容','pattern'=>'^[\S\s]*\S[\S\s]*$','title'=>'全角スペースのみは投稿できません。']) !!}
 
     </div>
 
