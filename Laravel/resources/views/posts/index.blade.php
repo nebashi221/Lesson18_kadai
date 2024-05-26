@@ -26,8 +26,9 @@
 
       </form>
 
-      @if(count($lists) == 0)
+      @if(count($lists) == 0 && isset($keyword))
       <p>検索結果が見つかりませんでした。</p>
+
       @else
 
       <table class="table table-hover">
@@ -61,7 +62,7 @@
           <td>{{$list->updated_at}}</td>
 
 
-          @if($editable)
+          @if(isset($list->editable) && $list->editable)
 
           <td><a class="btn btn-primary" href="/post/{{ $list->id }}/update-form">編集</a></td>
 

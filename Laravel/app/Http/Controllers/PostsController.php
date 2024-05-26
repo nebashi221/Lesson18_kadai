@@ -20,7 +20,13 @@ class PostsController extends Controller
             $post->editable = $userName == $post->user_name;
         }
 
-        return view('posts.index', ['lists' => $list, 'username' => $userName, 'editable' => $post->editable ?? false]);
+        $editable = false;
+
+        if (!empty($list) && isset($list[0]->editable)) {
+            $editable = $list[0]->editable;
+        }
+
+        return view('posts.index', ['lists' => $list, 'username' => $userName, 'editable' => $editable]);
     }
 
     public function createForm()
