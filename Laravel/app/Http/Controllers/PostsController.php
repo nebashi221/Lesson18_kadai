@@ -16,19 +16,26 @@ class PostsController extends Controller
         $list = DB::table('posts')->get();
         $userName = Auth::check() ? Auth::user()->name : null;
 
-        foreach ($list as $post) {
+        $keyword = request()->input('keyword');
+
+        if ($keyword) {
+            $lists = DB::table('posts')->where('contents', 'like', '%' . $keyword . '%')->get();
+        } else {
+            $lists = DB::table('posts')->get();
+        }
+
+        foreach ($lists as $post) {
             $post->editable = $userName == $post->user_name;
         }
 
-        $editable = false;
-
-        if (!empty($list) && isset($list[0]->editable)) {
-            $editable = $list[0]->editable;
+        if (count($lists) == 0 && !$keyword) {
+            return view('posts.index', ['lists' => $lists, 'username' => $userName]);
+        } elseif (count($lists) == 0 && $keyword) {
+            return view('posts.index', ['lists' => $lists, 'username' => $userName, 'keyword' => $keyword]);
         }
 
-        return view('posts.index', ['lists' => $list, 'username' => $userName, 'editable' => $editable]);
+        return view('posts.index', ['lists' => $lists, 'username' => $userName]);
     }
-
     public function createForm()
     {
         return view('posts.createForm');
@@ -115,9 +122,10 @@ class PostsController extends Controller
     }
 
     public function search(Request $request)
-
     {
         $keyword = $request->input('keyword');
+
+        $userName = Auth::check() ? Auth::user()->name : null;
 
         if ($keyword) {
             $lists = DB::table('posts')->where('contents', 'like', '%' . $keyword . '%')->get();
@@ -125,7 +133,15 @@ class PostsController extends Controller
             $lists = DB::table('posts')->get();
         }
 
-        return view('posts.index', ['lists' => $lists]);
+        foreach ($lists as $post) {
+            $post->editable = $userName == $post->user_name;
+        }
+
+        if (count($lists) == 0 && $keyword) {
+            return view('posts.index', ['lists' => $lists, 'username' => $userName, 'keyword' => $keyword]);
+        }
+
+        return view('posts.index', ['lists' => $lists, 'username' => $userName, 'keyword' => null]);
     }
 
     public function __construct()

@@ -26,10 +26,15 @@
 
       </form>
 
-      @if(count($lists) == 0 && isset($keyword))
-      <p>検索結果が見つかりませんでした。</p>
+     @if(count($lists) == 0 && !isset($keyword))
+    <p></p>
+@elseif(count($lists) == 0 && isset($keyword))
+    <p>検索結果が見つかりませんでした。</p>
+@else
 
-      @else
+
+
+
 
       <table class="table table-hover">
 
@@ -77,6 +82,8 @@
         @endforeach
 
       </table>
+
+
 
       @endif
 
